@@ -1,7 +1,9 @@
+extern crate rust_raytracer;
 use std::error::Error;
 use std::fs::{create_dir_all, File};
 use std::io::prelude::*;
 use std::path::Path;
+use rust_raytracer::vec3::Vec3;
 
 fn main() {
     let nx: u32 = 200;
@@ -9,12 +11,10 @@ fn main() {
     let mut output = format!("P3\n{} {}\n255\n", nx, ny);
     for j in (0..ny).rev() {
         for i in 0..nx {
-            let r: f32 = i as f32 / nx as f32;
-            let g: f32 = j as f32 / ny as f32;
-            let b: f32 = 0.2;
-            let ir = (255.99 * r) as u32;
-            let ig = (255.99 * g) as u32;
-            let ib = (255.99 * b) as u32;
+            let pixel = Vec3::new(i as f32 / nx as f32, j as f32 / ny as f32, 0.2);
+            let ir = (255.99 * pixel.r()) as u32;
+            let ig = (255.99 * pixel.g()) as u32;
+            let ib = (255.99 * pixel.b()) as u32;
             output = format!("{}{} {} {}\n", output, ir, ig, ib);
         }
     }
