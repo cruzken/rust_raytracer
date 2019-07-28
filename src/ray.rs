@@ -12,7 +12,11 @@ impl Ray {
         }
     }
 
-    pub fn direction(self) -> Vec3 {
+    pub fn origin(&self) -> Vec3 {
+        return self.origin
+    }
+
+    pub fn direction(&self) -> Vec3 {
         return self.direction
     }
     
