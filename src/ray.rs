@@ -20,3 +20,19 @@ impl Ray {
         self.origin + t * self.direction
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Ray;
+    use super::Vec3;
+
+    #[test]
+    fn point_at_parameter() {
+        let r = Ray::new(
+            Vec3::new(1.0, 2.0, 3.0),
+            Vec3::new(4.0, 5.0, 6.0)
+        );
+
+        assert_eq!(r.point_at_parameter(2.0), Vec3::new(9.0, 12.0, 15.0));
+    }
+}
