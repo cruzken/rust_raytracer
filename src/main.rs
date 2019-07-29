@@ -1,34 +1,23 @@
 extern crate rust_raytracer;
+use rust_raytracer::hitable::{HitList, Hitable};
+use rust_raytracer::ray::Ray;
+use rust_raytracer::sphere::Sphere;
+use rust_raytracer::vec3::Vec3;
 use std::error::Error;
 use std::fs::{create_dir_all, File};
 use std::io::prelude::*;
 use std::path::Path;
-use rust_raytracer::vec3::Vec3;
-use rust_raytracer::ray::Ray;
 
-fn hit_sphere(center: Vec3, radius: f32, r: &Ray) -> f32 {
-    let oc: Vec3 = r.origin() - center;
-    let a: f32 = r.direction().dot(&r.direction());
-    let b: f32 = 2.0 * oc.dot(&r.direction());
-    let c: f32 = oc.dot(&oc) - radius * radius;
-    let discriminant: f32 = b * b - 4.0 * a * c;
-    if discriminant < 0.0 {
-        return -1.0;
+fn color<T: Hitable>(r: Ray, world: &T) -> Vec3 {
+    let res = world.hit(&r, 0.0, std::f32::MAX);
+    if res.0 {
+        let n = res.1.normal;
+        0.5 * Vec3::new(n.x() + 1.0, n.y() + 1.0, n.z() + 1.0)
     } else {
-        return (-b - discriminant.sqrt() ) / (2.0 * a);
+        let unit_direction = r.direction().unit();
+        let t: f32 = 0.5 * (unit_direction.y() + 1.0);
+        (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0)
     }
-}
-
-fn color(r: Ray) -> Vec3 {
-    let t: f32 =  hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, &r);
-
-    if t > 0.0 {
-        let n: Vec3 = (r.point_at_parameter(t) - Vec3::new(0.0, 0.0, -1.0)).unit();
-        return 0.5 * Vec3::new(n.x() + 1.0, n.y() + 1.0, n.z() + 1.0);
-    }
-    let unit_direction = r.direction().unit();
-    let t: f32 = 0.5 * (unit_direction.y() + 1.0);
-    (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0)
 }
 
 fn main() {
@@ -39,13 +28,16 @@ fn main() {
     let horizontal = Vec3::new(4.0, 0.0, 0.0);
     let vertical = Vec3::new(0.0, 2.0, 0.0);
     let origin = Vec3::new(0.0, 0.0, 0.0);
+    let s1 = Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5));
+    let s2 = Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0));
+    let world: HitList = HitList { list: vec![s1, s2] };
     for j in (0..ny).rev() {
         for i in 0..nx {
             let u: f32 = i as f32 / nx as f32;
             let v: f32 = j as f32 / ny as f32;
 
             let r = Ray::new(origin, lower_left_corner + u * horizontal + v * vertical);
-            let col = color(r);
+            let col = color(r, &world);
             let ir = (255.99 * col.r()) as u32;
             let ig = (255.99 * col.g()) as u32;
             let ib = (255.99 * col.b()) as u32;
