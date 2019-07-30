@@ -10,11 +10,22 @@ use std::fs::{create_dir_all, File};
 use std::io::prelude::*;
 use std::path::Path;
 
+fn random_in_unit_sphere() -> Vec3 {
+    let mut p: Vec3;
+    let mut rng = thread_rng();
+    loop {
+        p = 2.0 * Vec3::new(rng.gen(), rng.gen(), rng.gen()) - Vec3::new(1.0, 1.0, 1.0);
+        if p.squared_length() < 1.0 {
+            break;
+        }
+    }
+    p
+}
 fn color<T: Hitable>(r: Ray, world: &T) -> Vec3 {
-    let res = world.hit(&r, 0.0, std::f32::MAX);
+    let res = world.hit(&r, 0.001, std::f32::MAX);
     if res.0 {
-        let n = res.1.normal;
-        0.5 * Vec3::new(n.x() + 1.0, n.y() + 1.0, n.z() + 1.0)
+        let target = res.1.p + res.1.normal + random_in_unit_sphere();
+        0.5 * color(Ray::new(res.1.p, target - res.1.p), world)
     } else {
         let unit_direction = r.direction().unit();
         let t: f32 = 0.5 * (unit_direction.y() + 1.0);
@@ -45,6 +56,7 @@ fn main() {
                 col += color(r, &world);
             }
             col /= ns as f32;
+            col = Vec3::new(col.r().sqrt(), col.g().sqrt(), col.b().sqrt()); // Raise gamma to 2
             let ir = (255.99 * col.r()) as u32;
             let ig = (255.99 * col.g()) as u32;
             let ib = (255.99 * col.b()) as u32;
