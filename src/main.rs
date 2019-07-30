@@ -1,4 +1,6 @@
 extern crate rust_raytracer;
+use rand::prelude::*;
+use rust_raytracer::camera::Camera;
 use rust_raytracer::hitable::{HitList, Hitable};
 use rust_raytracer::ray::Ray;
 use rust_raytracer::sphere::Sphere;
@@ -23,21 +25,26 @@ fn color<T: Hitable>(r: Ray, world: &T) -> Vec3 {
 fn main() {
     let nx: u32 = 200;
     let ny: u32 = 100;
+    let ns: u32 = 100;
     let mut output = format!("P3\n{} {}\n255\n", nx, ny);
-    let lower_left_corner = Vec3::new(-2.0, -1.0, -1.0);
-    let horizontal = Vec3::new(4.0, 0.0, 0.0);
-    let vertical = Vec3::new(0.0, 2.0, 0.0);
-    let origin = Vec3::new(0.0, 0.0, 0.0);
     let s1 = Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5));
     let s2 = Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0));
     let world: HitList = HitList { list: vec![s1, s2] };
+    let cam: Camera = Camera::default();
+    let mut rng = thread_rng();
+
     for j in (0..ny).rev() {
         for i in 0..nx {
-            let u: f32 = i as f32 / nx as f32;
-            let v: f32 = j as f32 / ny as f32;
-
-            let r = Ray::new(origin, lower_left_corner + u * horizontal + v * vertical);
-            let col = color(r, &world);
+            let mut col: Vec3 = Vec3::new(0.0, 0.0, 0.0);
+            for _s in 0..ns {
+                let pu: f32 = rng.gen();
+                let pv: f32 = rng.gen();
+                let u: f32 = (i as f32 + pu) / nx as f32;
+                let v: f32 = (j as f32 + pv) / ny as f32;
+                let r = cam.get_ray(u, v);
+                col += color(r, &world);
+            }
+            col /= ns as f32;
             let ir = (255.99 * col.r()) as u32;
             let ig = (255.99 * col.g()) as u32;
             let ib = (255.99 * col.b()) as u32;
