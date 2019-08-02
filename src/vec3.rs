@@ -1,4 +1,5 @@
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use rand::prelude::*;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vec3 {
@@ -216,6 +217,22 @@ impl Neg for Vec3 {
             z: -self.z,
         }
     }
+}
+
+pub fn random_in_unit_sphere() -> Vec3 {
+    let mut p: Vec3;
+    let mut rng = thread_rng();
+    loop {
+        p = 2.0 * Vec3::new(rng.gen(), rng.gen(), rng.gen()) - Vec3::new(1.0, 1.0, 1.0);
+        if p.squared_length() < 1.0 {
+            break;
+        }
+    }
+    p
+}
+
+pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
+    v - 2.0 * v.dot(&n) * n
 }
 
 #[cfg(test)]
