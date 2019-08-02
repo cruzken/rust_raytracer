@@ -2,7 +2,7 @@ extern crate rust_raytracer;
 use rand::prelude::*;
 use rust_raytracer::camera::Camera;
 use rust_raytracer::hitable::{HitList, Hitable};
-use rust_raytracer::material::{Lambertian, Material, MaterialRay, Metal};
+use rust_raytracer::material::{Lambertian, Material, Metal};
 use rust_raytracer::ray::Ray;
 use rust_raytracer::sphere::Sphere;
 use rust_raytracer::vec3::Vec3;
@@ -15,22 +15,12 @@ fn color<T: Hitable>(r: Ray, world: &T, depth: u32) -> Vec3 {
     match world.hit(&r, 0.001, std::f32::MAX) {
         Some(x) => {
             if depth < 50 {
-                // this needs to be refactored
-                match x.material {
-                    Material::Lambertian { mat } => match mat.scatter(&r, &x) {
-                        Some((attenuation, scattered)) => {
-                            attenuation * color(scattered, world, depth + 1)
-                        },
-                        None => Vec3::new(0.0, 0.0, 0.0) 
+                match Material::scatter(x.material, &r, &x) {
+                    Some((attenuation, scattered)) => {
+                        attenuation * color(scattered, world, depth + 1)
                     },
-                    Material::Metal { mat } => match mat.scatter(&r, &x) {
-                        Some((attenuation, scattered)) => {
-                            attenuation * color(scattered, world, depth + 1)
-                        },
-                        None => Vec3::new(0.0, 0.0, 0.0) 
-                    },
+                    None => Vec3::new(0.0, 0.0, 0.0) 
                 }
-                // refactor block end
             } else {
                 return Vec3::new(0.0, 0.0, 0.0);
             }
