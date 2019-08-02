@@ -235,6 +235,17 @@ pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
     v - 2.0 * v.dot(&n) * n
 }
 
+pub fn refract(v: &Vec3, n: &Vec3, ni_over_nt: f32) -> Option<Vec3> {
+    let uv = v.unit();
+    let dt = uv.dot(n);
+    let discriminant = 1.0 - ni_over_nt * ni_over_nt * (1.0 - dt * dt);
+    if discriminant > 0.0 {
+        let refracted = ni_over_nt * (uv - *n * dt) - *n * discriminant.sqrt();
+        return Some(refracted);
+    }
+    None
+}
+
 #[cfg(test)]
 mod tests {
 

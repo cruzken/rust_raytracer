@@ -2,7 +2,7 @@ extern crate rust_raytracer;
 use rand::prelude::*;
 use rust_raytracer::camera::Camera;
 use rust_raytracer::hitable::{HitList, Hitable};
-use rust_raytracer::material::{Lambertian, Material, Metal};
+use rust_raytracer::material::{Lambertian, Material, Metal, Dielectric};
 use rust_raytracer::ray::Ray;
 use rust_raytracer::sphere::Sphere;
 use rust_raytracer::vec3::Vec3;
@@ -39,16 +39,16 @@ fn main() {
     let ns: u32 = 100;
     let mut output = format!("P3\n{} {}\n255\n", nx, ny);
     let s1_mat: Material = Material::Lambertian {
-        mat: Lambertian::new(0.8, 0.3, 0.3),
+        mat: Lambertian::new(0.1, 0.2, 0.5),
     };
     let s2_mat: Material = Material::Lambertian {
         mat: Lambertian::new(0.8, 0.8, 0.0),
     };
     let s3_mat: Material = Material::Metal {
-        mat: Metal::new(0.8, 0.6, 0.2, 1.0),
+        mat: Metal::new(0.8, 0.6, 0.2, 0.0),
     };
-    let s4_mat: Material = Material::Metal {
-        mat: Metal::new(0.8, 0.8, 0.8, 0.3),
+    let s4_mat: Material = Material::Dielectric {
+        mat: Dielectric::new(1.5),
     };
 
     let s1 = Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, s1_mat);
