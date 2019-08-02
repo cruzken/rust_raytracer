@@ -45,12 +45,19 @@ impl MaterialRay for Lambertian {
 #[derive(Clone, Copy)]
 pub struct Metal {
     albedo: Vec3,
+    fuzz: f32,
 }
 
 impl Metal {
-    pub fn new(x: f32, y: f32, z: f32) -> Metal {
+    pub fn new(x: f32, y: f32, z: f32, f: f32) -> Metal {
+        let fuzz = match f {
+            x if x < 1.0 => x,
+            _ => 1.0,
+        };
+
         Metal {
             albedo: Vec3::new(x, y, z),
+            fuzz,
         }
     }
 }
@@ -58,7 +65,7 @@ impl Metal {
 impl MaterialRay for Metal {
     fn scatter(&self, r: &Ray, rec: &HitRecord) -> Option<(Vec3, Ray)> {
         let reflected = reflect(r.direction().unit(), rec.normal);
-        let scattered = Ray::new(rec.p, reflected);
+        let scattered = Ray::new(rec.p, reflected + self.fuzz * random_in_unit_sphere());
         Some((self.albedo, scattered))
     }
 }

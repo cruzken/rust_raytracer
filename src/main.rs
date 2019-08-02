@@ -45,10 +45,10 @@ fn main() {
         mat: Lambertian::new(0.8, 0.8, 0.0),
     };
     let s3_mat: Material = Material::Metal {
-        mat: Metal::new(0.8, 0.6, 0.2),
+        mat: Metal::new(0.8, 0.6, 0.2, 1.0),
     };
     let s4_mat: Material = Material::Metal {
-        mat: Metal::new(0.8, 0.8, 0.8),
+        mat: Metal::new(0.8, 0.8, 0.8, 0.3),
     };
 
     let s1 = Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, s1_mat);
