@@ -28,7 +28,7 @@ pub struct HitList<T: Hitable> {
     pub list: Vec<T>,
 }
 
-impl <T: Hitable> Hitable for HitList<T> {
+impl<T: Hitable> Hitable for HitList<T> {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let mut closest_so_far: f32 = t_max;
 
@@ -38,8 +38,8 @@ impl <T: Hitable> Hitable for HitList<T> {
                 Some(x) => {
                     closest_so_far = x.t;
                     rec = Some(x);
-                },
-                None => ()
+                }
+                None => (),
             }
         }
         rec

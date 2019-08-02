@@ -15,8 +15,8 @@ pub enum Material {
 impl Material {
     pub fn scatter(m: Material, r: &Ray, rec: &HitRecord) -> Option<(Vec3, Ray)> {
         match m {
-            Material::Lambertian {mat} => mat.scatter(r, rec),
-            Material::Metal {mat} => mat.scatter(r, rec)
+            Material::Lambertian { mat } => mat.scatter(r, rec),
+            Material::Metal { mat } => mat.scatter(r, rec),
         }
     }
 }

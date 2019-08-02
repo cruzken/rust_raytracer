@@ -1,7 +1,7 @@
-use crate::hitable::{Hitable, HitRecord};
-use crate::vec3::Vec3;
-use crate::ray::Ray;
+use crate::hitable::{HitRecord, Hitable};
 use crate::material::Material;
+use crate::ray::Ray;
+use crate::vec3::Vec3;
 
 pub struct Sphere {
     center: Vec3,
@@ -11,7 +11,11 @@ pub struct Sphere {
 
 impl Sphere {
     pub fn new(center: Vec3, radius: f32, material: Material) -> Sphere {
-        Sphere { center, radius, material}
+        Sphere {
+            center,
+            radius,
+            material,
+        }
     }
 }
 

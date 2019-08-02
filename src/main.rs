@@ -18,13 +18,13 @@ fn color<T: Hitable>(r: Ray, world: &T, depth: u32) -> Vec3 {
                 match Material::scatter(x.material, &r, &x) {
                     Some((attenuation, scattered)) => {
                         attenuation * color(scattered, world, depth + 1)
-                    },
-                    None => Vec3::new(0.0, 0.0, 0.0) 
+                    }
+                    None => Vec3::new(0.0, 0.0, 0.0),
                 }
             } else {
                 return Vec3::new(0.0, 0.0, 0.0);
             }
-        },
+        }
         None => {
             let unit_direction = r.direction().unit();
             let t: f32 = 0.5 * (unit_direction.y() + 1.0);
@@ -55,7 +55,9 @@ fn main() {
     let s2 = Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0, s2_mat);
     let s3 = Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.5, s3_mat);
     let s4 = Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5, s4_mat);
-    let world: HitList<Sphere> = HitList { list: vec![s1, s2, s3, s4] };
+    let world: HitList<Sphere> = HitList {
+        list: vec![s1, s2, s3, s4],
+    };
     let cam: Camera = Camera::default();
     let mut rng = thread_rng();
 

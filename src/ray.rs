@@ -7,9 +7,7 @@ pub struct Ray {
 
 impl Ray {
     pub fn new(origin: Vec3, direction: Vec3) -> Ray {
-        Ray {
-            origin, direction
-        }
+        Ray { origin, direction }
     }
 
     pub fn origin(&self) -> Vec3 {
@@ -19,7 +17,7 @@ impl Ray {
     pub fn direction(&self) -> Vec3 {
         self.direction
     }
-    
+
     pub fn point_at_parameter(&self, t: f32) -> Vec3 {
         self.origin + t * self.direction
     }
@@ -32,10 +30,7 @@ mod tests {
 
     #[test]
     fn point_at_parameter() {
-        let r = Ray::new(
-            Vec3::new(1.0, 2.0, 3.0),
-            Vec3::new(4.0, 5.0, 6.0)
-        );
+        let r = Ray::new(Vec3::new(1.0, 2.0, 3.0), Vec3::new(4.0, 5.0, 6.0));
 
         assert_eq!(r.point_at_parameter(2.0), Vec3::new(9.0, 12.0, 15.0));
     }
