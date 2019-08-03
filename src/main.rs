@@ -1,8 +1,9 @@
 extern crate rust_raytracer;
 use rand::prelude::*;
+use rayon::prelude::*;
 use rust_raytracer::camera::Camera;
 use rust_raytracer::hitable::{HitList, Hitable};
-use rust_raytracer::material::{Lambertian, Material, Metal, Dielectric};
+use rust_raytracer::material::{Dielectric, Lambertian, Material, Metal};
 use rust_raytracer::ray::Ray;
 use rust_raytracer::sphere::Sphere;
 use rust_raytracer::vec3::Vec3;
@@ -60,27 +61,38 @@ fn main() {
         list: vec![s1, s2, s3, s4, s5],
     };
     let cam: Camera = Camera::default();
-    let mut rng = thread_rng();
 
-    for j in (0..ny).rev() {
-        for i in 0..nx {
-            let mut col: Vec3 = Vec3::new(0.0, 0.0, 0.0);
-            for _s in 0..ns {
-                let pu: f32 = rng.gen();
-                let pv: f32 = rng.gen();
-                let u: f32 = (i as f32 + pu) / nx as f32;
-                let v: f32 = (j as f32 + pv) / ny as f32;
-                let r = cam.get_ray(u, v);
-                col += color(r, &world, 0);
-            }
-            col /= ns as f32;
-            col = Vec3::new(col.r().sqrt(), col.g().sqrt(), col.b().sqrt()); // Raise gamma to 2
-            let ir = (255.99 * col.r()) as u32;
-            let ig = (255.99 * col.g()) as u32;
-            let ib = (255.99 * col.b()) as u32;
-            output = format!("{}{} {} {}\n", output, ir, ig, ib);
-        }
-    }
+    let img = (0..ny)
+        .into_par_iter()
+        .rev()
+        .map(|j| {
+            (0..nx)
+                .into_par_iter()
+                .map(|i| {
+                    let mut rng = thread_rng();
+                    let mut col = Vec3::new(0.0, 0.0, 0.0);
+                    for _ in 0..ns {
+                        let pu: f32 = rng.gen();
+                        let pv: f32 = rng.gen();
+                        let u: f32 = (i as f32 + pu) / nx as f32;
+                        let v: f32 = (j as f32 + pv) / ny as f32;
+                        let r = cam.get_ray(u, v);
+                        col += color(r, &world, 0);
+                    }
+                    col /= ns as f32;
+                    col = Vec3::new(col.r().sqrt(), col.g().sqrt(), col.b().sqrt()); // Raise gamma to 2
+                    let ir = (255.99 * col.r()) as u32;
+                    let ig = (255.99 * col.g()) as u32;
+                    let ib = (255.99 * col.b()) as u32;
+                    format!("{} {} {}\n", ir, ig, ib)
+                })
+                .collect::<Vec<String>>()
+                .join("")
+        })
+        .collect::<Vec<String>>()
+        .join("");
+
+    output = format!("{}{}", &output, img);
 
     let dir = Path::new("out/");
     let path = Path::new("out/image.ppm");
