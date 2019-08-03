@@ -1,6 +1,7 @@
 use crate::hitable::HitRecord;
 use crate::ray::Ray;
 use crate::vec3::{random_in_unit_sphere, reflect, refract, Vec3};
+use rand::prelude::*;
 
 pub trait MaterialRay {
     fn scatter(&self, r: &Ray, rec: &HitRecord) -> Option<(Vec3, Ray)>;
@@ -81,6 +82,12 @@ impl Dielectric {
     pub fn new(ref_idx: f32) -> Dielectric {
         Dielectric { ref_idx }
     }
+
+    pub fn schlick(&self, cosine: f32) -> f32 {
+        let mut r0: f32 = (1.0 - self.ref_idx) / (1.0 + self.ref_idx);
+        r0 *= r0;
+        r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
+    }
 }
 
 impl MaterialRay for Dielectric {
@@ -88,19 +95,37 @@ impl MaterialRay for Dielectric {
         let outward_normal: Vec3;
         let ni_over_nt: f32;
         let attenuation = Vec3::new(1.0, 1.0, 1.0);
+        let cosine: f32;
+        let reflected: Vec3 = reflect(r.direction(), rec.normal);
         if r.direction().dot(&rec.normal) > 0.0 {
             outward_normal = -rec.normal;
             ni_over_nt = self.ref_idx;
+            cosine = self.ref_idx * r.direction().dot(&rec.normal) / r.direction().length();
         } else {
             outward_normal = rec.normal;
             ni_over_nt = 1.0 / self.ref_idx;
+            cosine = -r.direction().dot(&rec.normal) / r.direction().length();
         }
+        let reflect_prob: f32;
+        let scattered: Ray;
+        let refracted: Vec3;
         match refract(&r.direction(), &outward_normal, ni_over_nt) {
             Some(x) => {
-                let refracted = Ray::new(rec.p, x);
-                return Some((attenuation, refracted));
+                reflect_prob = self.schlick(cosine);
+                refracted = x;
+                let mut rng = thread_rng();
+                if rng.gen::<f32>() < reflect_prob {
+                    scattered = Ray::new(rec.p, reflected);
+                    return Some((attenuation, scattered));
+                } else {
+                    scattered = Ray::new(rec.p, refracted);
+                    return Some((attenuation, scattered));
+                }
             }
-            None => None,
+            None => {
+                scattered = Ray::new(rec.p, reflected);
+                return Some((attenuation, scattered));
+            }
         }
     }
 }

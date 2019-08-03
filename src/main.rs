@@ -55,8 +55,9 @@ fn main() {
     let s2 = Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0, s2_mat);
     let s3 = Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.5, s3_mat);
     let s4 = Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5, s4_mat);
+    let s5 = Sphere::new(Vec3::new(-1.0, 0.0, -1.0), -0.45, s4_mat);
     let world: HitList<Sphere> = HitList {
-        list: vec![s1, s2, s3, s4],
+        list: vec![s1, s2, s3, s4, s5],
     };
     let cam: Camera = Camera::default();
     let mut rng = thread_rng();
