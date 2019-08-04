@@ -61,7 +61,20 @@ fn main() {
         list: vec![s1, s2, s3, s4, s5],
     };
 
-    let cam: Camera = Camera::new(Vec3::new(-2.0, 2.0, 1.0), Vec3::new(0.0, 0.0, -1.0), Vec3::new(0.0, 1.0, 0.0), 20.0, nx as f32 / ny as f32);
+    let lookfrom = Vec3::new(3.0, 3.0, 2.0);
+    let lookat = Vec3::new(0.0, 0.0, -1.0);
+    let vup = Vec3::new(0.0, 1.0, 0.0);
+    let dist_to_focus: f32 = (lookfrom - lookat).length();
+    let aperture: f32 = 2.0;
+    let cam: Camera = Camera::new(
+        lookfrom,
+        lookat,
+        vup,
+        20.0,
+        nx as f32 / ny as f32,
+        aperture,
+        dist_to_focus,
+    );
 
     let img = (0..ny)
         .into_par_iter()
