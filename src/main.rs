@@ -12,6 +12,92 @@ use std::fs::{create_dir_all, File};
 use std::io::prelude::*;
 use std::path::Path;
 
+fn random_scene() -> HitList<Sphere> {
+    let mut hitlist = HitList { list: Vec::new() };
+    hitlist.list.push(Sphere::new(
+        Vec3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        Material::Lambertian {
+            mat: Lambertian::new(0.5, 0.5, 0.5),
+        },
+    ));
+    let mut rng = thread_rng();
+    for a in -11..11 {
+        for b in -11..11 {
+            let choose_mat: f32 = rng.gen();
+            let center = Vec3::new(
+                a as f32 * rng.gen::<f32>(),
+                0.2,
+                b as f32 + 0.9 * rng.gen::<f32>(),
+            );
+            if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
+                if choose_mat < 0.8 {
+                    //diffuse
+                    hitlist.list.push(Sphere::new(
+                        center,
+                        0.2,
+                        Material::Lambertian {
+                            mat: Lambertian::new(
+                                rng.gen::<f32>() * rng.gen::<f32>(),
+                                rng.gen::<f32>() * rng.gen::<f32>(),
+                                rng.gen::<f32>() * rng.gen::<f32>(),
+                            ),
+                        },
+                    ));
+                } else if choose_mat < 0.95 {
+                    // metal
+                    hitlist.list.push(Sphere::new(
+                        center,
+                        0.2,
+                        Material::Metal {
+                            mat: Metal::new(
+                                0.5 * (1.0 + rng.gen::<f32>()),
+                                0.5 * (1.0 + rng.gen::<f32>()),
+                                0.5 * (1.0 + rng.gen::<f32>()),
+                                0.5 * rng.gen::<f32>(),
+                            ),
+                        },
+                    ));
+                } else {
+                    //glass
+                    hitlist.list.push(Sphere::new(
+                        center,
+                        0.2,
+                        Material::Dielectric {
+                            mat: Dielectric::new(1.5),
+                        },
+                    ));
+                }
+            }
+        }
+    }
+    hitlist.list.push(Sphere::new(
+        Vec3::new(0.0, 1.0, 0.0),
+        1.0,
+        Material::Dielectric {
+            mat: Dielectric::new(1.5),
+        },
+    ));
+
+    hitlist.list.push(Sphere::new(
+        Vec3::new(-4.0, 1.0, 0.0),
+        1.0,
+        Material::Lambertian {
+            mat: Lambertian::new(0.4, 0.2, 0.1),
+        },
+    ));
+
+    hitlist.list.push(Sphere::new(
+        Vec3::new(4.0, 1.0, 0.0),
+        1.0,
+        Material::Metal {
+            mat: Metal::new(0.7, 0.6, 0.5, 0.0),
+        },
+    ));
+
+    hitlist
+}
+
 fn color<T: Hitable>(r: Ray, world: &T, depth: u32) -> Vec3 {
     match world.hit(&r, 0.001, std::f32::MAX) {
         Some(x) => {
@@ -39,38 +125,19 @@ fn main() {
     let ny: u32 = 100;
     let ns: u32 = 100;
     let mut output = format!("P3\n{} {}\n255\n", nx, ny);
-    let s1_mat: Material = Material::Lambertian {
-        mat: Lambertian::new(0.1, 0.2, 0.5),
-    };
-    let s2_mat: Material = Material::Lambertian {
-        mat: Lambertian::new(0.8, 0.8, 0.0),
-    };
-    let s3_mat: Material = Material::Metal {
-        mat: Metal::new(0.8, 0.6, 0.2, 0.0),
-    };
-    let s4_mat: Material = Material::Dielectric {
-        mat: Dielectric::new(1.5),
-    };
 
-    let s1 = Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, s1_mat);
-    let s2 = Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0, s2_mat);
-    let s3 = Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.5, s3_mat);
-    let s4 = Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5, s4_mat);
-    let s5 = Sphere::new(Vec3::new(-1.0, 0.0, -1.0), -0.45, s4_mat);
-    let world: HitList<Sphere> = HitList {
-        list: vec![s1, s2, s3, s4, s5],
-    };
+    let world: HitList<Sphere> = random_scene();
 
-    let lookfrom = Vec3::new(3.0, 3.0, 2.0);
-    let lookat = Vec3::new(0.0, 0.0, -1.0);
+    let lookfrom = Vec3::new(16.0, 2.0, 4.0);
+    let lookat = Vec3::new(0.0, 0.0, 0.0);
     let vup = Vec3::new(0.0, 1.0, 0.0);
     let dist_to_focus: f32 = (lookfrom - lookat).length();
-    let aperture: f32 = 2.0;
+    let aperture: f32 = 0.2;
     let cam: Camera = Camera::new(
         lookfrom,
         lookat,
         vup,
-        20.0,
+        15.0,
         nx as f32 / ny as f32,
         aperture,
         dist_to_focus,
