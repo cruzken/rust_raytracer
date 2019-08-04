@@ -1,6 +1,5 @@
 use rand::prelude::*;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
-use std::iter::Sum;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vec3 {

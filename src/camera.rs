@@ -1,5 +1,6 @@
 use crate::ray::Ray;
 use crate::vec3::Vec3;
+use std::f32::consts::PI;
 
 pub struct Camera {
     lower_left_corner: Vec3,
@@ -9,12 +10,20 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new() -> Camera {
+    pub fn new(lookfrom: Vec3, lookat: Vec3, vup: Vec3, vfov: f32, aspect: f32) -> Camera {
+        let theta: f32 = vfov * PI / 180.0;
+        let half_height: f32 = (theta / 2.0).tan();
+        let half_width: f32 = aspect * half_height;
+        let origin = lookfrom;
+        let w = (lookfrom - lookat).unit();
+        let u = vup.cross(&w).unit();
+        let v = w.cross(&u);
+
         Camera {
-            lower_left_corner: Vec3::new(-2.0, -1.0, -1.0),
-            horizontal: Vec3::new(4.0, 0.0, 0.0),
-            vertical: Vec3::new(0.0, 2.0, 0.0),
-            origin: Vec3::new(0.0, 0.0, 0.0),
+            lower_left_corner: origin - half_width * u -half_height * v - w,
+            horizontal: 2.0 * half_width * u,
+            vertical: 2.0 * half_height * v,
+            origin,
         }
     }
 
@@ -26,8 +35,3 @@ impl Camera {
     }
 }
 
-impl Default for Camera {
-    fn default() -> Self {
-        Self::new()
-    }
-}

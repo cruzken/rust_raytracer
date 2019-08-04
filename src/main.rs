@@ -60,7 +60,8 @@ fn main() {
     let world: HitList<Sphere> = HitList {
         list: vec![s1, s2, s3, s4, s5],
     };
-    let cam: Camera = Camera::default();
+
+    let cam: Camera = Camera::new(Vec3::new(-2.0, 2.0, 1.0), Vec3::new(0.0, 0.0, -1.0), Vec3::new(0.0, 1.0, 0.0), 20.0, nx as f32 / ny as f32);
 
     let img = (0..ny)
         .into_par_iter()
