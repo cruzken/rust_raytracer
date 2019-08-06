@@ -8,9 +8,9 @@ use rust_raytracer::ray::Ray;
 use rust_raytracer::sphere::Sphere;
 use rust_raytracer::vec3::Vec3;
 use std::error::Error;
-use std::fs::{create_dir_all, File};
-use std::io::prelude::*;
+use std::fs::create_dir_all;
 use std::path::Path;
+use std::time::Instant;
 
 fn random_scene() -> HitList<Sphere> {
     let mut hitlist = HitList { list: Vec::new() };
@@ -121,10 +121,10 @@ fn color<T: Hitable>(r: Ray, world: &T, depth: u32) -> Vec3 {
 }
 
 fn main() {
+    let now = Instant::now();
     let nx: u32 = 200;
     let ny: u32 = 100;
     let ns: u32 = 100;
-    let mut output = format!("P3\n{} {}\n255\n", nx, ny);
 
     let world: HitList<Sphere> = random_scene();
 
@@ -143,7 +143,7 @@ fn main() {
         dist_to_focus,
     );
 
-    let img = (0..ny)
+    let output = (0..ny)
         .into_par_iter()
         .rev()
         .map(|j| {
@@ -162,35 +162,32 @@ fn main() {
                     }
                     col /= ns as f32;
                     col = Vec3::new(col.r().sqrt(), col.g().sqrt(), col.b().sqrt()); // Raise gamma to 2
-                    let ir = (255.99 * col.r()) as u32;
-                    let ig = (255.99 * col.g()) as u32;
-                    let ib = (255.99 * col.b()) as u32;
-                    format!("{} {} {}\n", ir, ig, ib)
+                    let ir = (255.99 * col.r()) as u8;
+                    let ig = (255.99 * col.g()) as u8;
+                    let ib = (255.99 * col.b()) as u8;
+                    vec![ir, ig, ib]
                 })
-                .collect::<Vec<String>>()
-                .join("")
+                .flatten()
+                .collect::<Vec<_>>()
         })
-        .collect::<Vec<String>>()
-        .join("");
-
-    output = format!("{}{}", &output, img);
+        .flatten()
+        .collect::<Vec<_>>();
 
     let dir = Path::new("out/");
-    let path = Path::new("out/image.ppm");
-    let display = path.display();
-
     match create_dir_all(&dir) {
         Err(why) => panic!("couldn't create dir {:?}: {}", &dir, why.description()),
         Ok(_) => println!("successfully created directory {:?}", &dir),
     }
 
-    let mut file = match File::create(&path) {
-        Err(why) => panic!("couldn't create {}: {}", display, why.description()),
-        Ok(file) => file,
-    };
-
-    match file.write_all(output.as_bytes()) {
-        Err(why) => panic!("couldn't write to {}: {}", display, why.description()),
-        Ok(_) => println!("successfully wrote to {}", display),
+    match image::save_buffer(
+        &Path::new("out/image.png"),
+        &output[..],
+        nx as u32,
+        ny as u32,
+        image::RGB(8),
+    ) {
+        Err(why) => println!("Error: Can't write to image: {}", why),
+        Ok(_) => println!("Successfully wrote to out/image.png"),
     }
+    println!("Image processed in {} seconds", now.elapsed().as_secs());
 }
