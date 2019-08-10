@@ -1,4 +1,3 @@
-extern crate rust_raytracer;
 use rand::prelude::*;
 use rayon::prelude::*;
 use rust_raytracer::camera::Camera;
