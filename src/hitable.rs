@@ -13,17 +13,6 @@ pub struct HitRecord {
     pub material: Material,
 }
 
-impl HitRecord {
-    pub fn new(t: f32, p: Vec3, normal: Vec3, material: Material) -> HitRecord {
-        HitRecord {
-            t,
-            p,
-            normal,
-            material,
-        }
-    }
-}
-
 pub struct HitList<T: Hitable> {
     pub list: Vec<T>,
 }
