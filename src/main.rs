@@ -1,15 +1,23 @@
-use rand::prelude::*;
-use rayon::prelude::*;
-use rust_raytracer::camera::Camera;
-use rust_raytracer::hitable::{HitList, Hitable};
-use rust_raytracer::material::{Dielectric, Lambertian, Material, Metal};
-use rust_raytracer::ray::Ray;
-use rust_raytracer::sphere::Sphere;
-use rust_raytracer::vec3::Vec3;
 use std::error::Error;
 use std::fs::create_dir_all;
 use std::path::Path;
 use std::time::Instant;
+use rand::prelude::*;
+use rayon::prelude::*;
+
+mod camera;
+mod hitable;
+mod material;
+mod ray;
+mod sphere;
+mod vec3;
+
+use crate::camera::Camera;
+use crate::hitable::{HitList, Hitable};
+use crate::material::{Dielectric, Lambertian, Material, Metal};
+use crate::ray::Ray;
+use crate::sphere::Sphere;
+use crate::vec3::Vec3;
 
 fn random_scene() -> HitList<Sphere> {
     let mut hitlist = HitList { list: Vec::new() };
