@@ -1,9 +1,4 @@
-use std::error::Error;
-use std::fs::create_dir_all;
-use std::path::Path;
-use std::time::Instant;
 use rand::prelude::*;
-use rayon::prelude::*;
 
 mod camera;
 mod hitable;
@@ -11,6 +6,7 @@ mod material;
 mod ray;
 mod sphere;
 mod vec3;
+mod utils;
 
 use crate::camera::Camera;
 use crate::hitable::{HitList, Hitable};
@@ -18,6 +14,24 @@ use crate::material::{Dielectric, Lambertian, Material, Metal};
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::vec3::Vec3;
+
+use wasm_bindgen::prelude::*;
+
+// When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
+// allocator.
+#[cfg(feature = "wee_alloc")]
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+#[wasm_bindgen]
+extern {
+    fn alert(s: &str);
+}
+
+#[wasm_bindgen]
+pub fn greet() {
+    alert("Hello, wasm-placeholder!");
+}
 
 fn random_scene() -> HitList<Sphere> {
     let mut hitlist = HitList { list: Vec::new() };
@@ -127,8 +141,8 @@ fn color<T: Hitable>(r: Ray, world: &T, depth: u32) -> Vec3 {
     }
 }
 
-fn main() {
-    let now = Instant::now();
+#[wasm_bindgen]
+pub fn gen_image() -> Vec<u8> {
     let nx: u32 = 200;
     let ny: u32 = 100;
     let ns: u32 = 100;
@@ -150,12 +164,12 @@ fn main() {
         dist_to_focus,
     );
 
-    let output = (0..ny)
-        .into_par_iter()
+    (0..ny)
+        .into_iter()
         .rev()
         .map(|j| {
             (0..nx)
-                .into_par_iter()
+                .into_iter()
                 .map(|i| {
                     let mut rng = thread_rng();
                     let mut col = Vec3::new(0.0, 0.0, 0.0);
@@ -178,23 +192,5 @@ fn main() {
                 .collect::<Vec<_>>()
         })
         .flatten()
-        .collect::<Vec<_>>();
-
-    let dir = Path::new("out/");
-    match create_dir_all(&dir) {
-        Err(why) => panic!("couldn't create dir {:?}: {}", &dir, why.description()),
-        Ok(_) => println!("successfully created directory {:?}", &dir),
-    }
-
-    match image::save_buffer(
-        &Path::new("out/image.png"),
-        &output[..],
-        nx as u32,
-        ny as u32,
-        image::RGB(8),
-    ) {
-        Err(why) => println!("Error: Can't write to image: {}", why),
-        Ok(_) => println!("Successfully wrote to out/image.png"),
-    }
-    println!("Image processed in {} seconds", now.elapsed().as_secs());
+        .collect::<Vec<_>>()
 }

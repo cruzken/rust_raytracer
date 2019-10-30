@@ -3,3 +3,8 @@
 Cargo.lock
 /src/out
 **/*.ppm
+**/**/node_modules
+bin/
+pkg/
+wasm-pack.log
+**/**/tags
