@@ -42,7 +42,7 @@ fn random_scene() -> HitList<Sphere> {
             mat: Lambertian::new(0.5, 0.5, 0.5),
         },
     ));
-    let mut rng = thread_rng();
+    let mut rng = StdRng::from_entropy();
     for a in -11..11 {
         for b in -11..11 {
             let choose_mat: f32 = rng.gen();
@@ -143,6 +143,7 @@ fn color<T: Hitable>(r: Ray, world: &T, depth: u32) -> Vec3 {
 
 #[wasm_bindgen]
 pub fn gen_image() -> Vec<u8> {
+    console_error_panic_hook::set_once();
     let nx: u32 = 200;
     let ny: u32 = 100;
     let ns: u32 = 100;
@@ -171,7 +172,7 @@ pub fn gen_image() -> Vec<u8> {
             (0..nx)
                 .into_iter()
                 .map(|i| {
-                    let mut rng = thread_rng();
+                    let mut rng = StdRng::from_entropy();
                     let mut col = Vec3::new(0.0, 0.0, 0.0);
                     for _ in 0..ns {
                         let pu: f32 = rng.gen();
@@ -186,7 +187,7 @@ pub fn gen_image() -> Vec<u8> {
                     let ir = (255.99 * col.r()) as u8;
                     let ig = (255.99 * col.g()) as u8;
                     let ib = (255.99 * col.b()) as u8;
-                    vec![ir, ig, ib]
+                    vec![ir, ig, ib, 255]
                 })
                 .flatten()
                 .collect::<Vec<_>>()
