@@ -142,10 +142,10 @@ fn color<T: Hitable>(r: Ray, world: &T, depth: u32) -> Vec3 {
 }
 
 #[wasm_bindgen]
-pub fn gen_image() -> Vec<u8> {
+pub fn gen_image(width: u32, height: u32) -> Vec<u8> {
     console_error_panic_hook::set_once();
-    let nx: u32 = 200;
-    let ny: u32 = 100;
+    let nx: u32 = width;
+    let ny: u32 = height;
     let ns: u32 = 100;
 
     let world: HitList<Sphere> = random_scene();

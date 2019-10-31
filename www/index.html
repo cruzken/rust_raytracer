@@ -1,12 +1,19 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <title>Hello wasm-pack!</title>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <title>
+      My awesome Rust, WebAssembly, Webpack and Web Worker Ray Tracer
+    </title>
   </head>
+
   <body>
+    <p>
+        Press run to generate an image!
+    </p>
+    <button type="button" id="submitButton">run</button>
+    <p id="result"></p>
       <canvas id="canvas"></canvas>
     <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
-    <script src="./bootstrap.js"></script>
   </body>
 </html>
