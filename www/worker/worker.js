@@ -1,21 +1,27 @@
 import("../../pkg").then(wasm => {
   self.addEventListener("message", () => {
     try {
-        const WIDTH = 100;
-        const HEIGHT = 50;
-      const imgData = wasm.gen_image(WIDTH, HEIGHT);
+        let t0 = new Date().getTime();
+        const WIDTH = 200;
+        const HEIGHT = 100;
         const arr = new Uint8ClampedArray(WIDTH * HEIGHT * 4);
+        const scene = wasm.Scene.new(WIDTH, HEIGHT);
 
-        for (let i = 0; i < arr.length; i += 4) {
-            arr[i + 0] = imgData[i + 0];
-            arr[i + 1] = imgData[i + 1];
-            arr[i + 2] = imgData[i + 2];
-            arr[i + 3] = imgData[i + 3];
+        for (let y = HEIGHT - 1; y >= 0; y--) {
+            let row = scene.image_row(y);
+            for (let i = 0; i < row.length; i++) {
+                arr[((HEIGHT - y - 1) * WIDTH * 4) + i] = row[i];
+            }
+            let imageData = new ImageData(arr, WIDTH);
+            self.postMessage({ allGood: "processing", status: `${(HEIGHT - y) * 100 / HEIGHT}% complete`, imgData: imageData });
         }
+
         let imageData = new ImageData(arr, WIDTH);
-      self.postMessage({ allGood: true, imgData: imageData });
+        let t1 = new Date().getTime();
+      self.postMessage({ allGood: true, imgData: imageData, time: "Finished in " + (t1 - t0) + " ms" });
     } catch (err) {
       self.postMessage({ allGood: false, error: err.message });
     }
   });
 });
+
