@@ -142,57 +142,8 @@ fn color<T: Hitable>(r: Ray, world: &T, depth: u32) -> Vec3 {
 }
 
 #[wasm_bindgen]
-pub fn gen_image(width: u32, height: u32) -> Vec<u8> {
-    console_error_panic_hook::set_once();
-    let nx: u32 = width;
-    let ny: u32 = height;
-    let ns: u32 = 100;
-
-    let world: HitList<Sphere> = random_scene();
-
-    let lookfrom = Vec3::new(16.0, 2.0, 4.0);
-    let lookat = Vec3::new(0.0, 0.0, 0.0);
-    let vup = Vec3::new(0.0, 1.0, 0.0);
-    let dist_to_focus: f32 = (lookfrom - lookat).length();
-    let aperture: f32 = 0.2;
-    let cam: Camera = Camera::new(
-        lookfrom,
-        lookat,
-        vup,
-        15.0,
-        nx as f32 / ny as f32,
-        aperture,
-        dist_to_focus,
-    );
-
-    (0..ny)
-        .into_iter()
-        .map(|j| {
-            (0..nx)
-                .into_iter()
-                .map(|i| {
-                    let mut rng = thread_rng();
-                    let mut col = Vec3::new(0.0, 0.0, 0.0);
-                    for _ in 0..ns {
-                        let pu: f32 = rng.gen();
-                        let pv: f32 = rng.gen();
-                        let u: f32 = (i as f32 + pu) / nx as f32;
-                        let v: f32 = (j as f32 + pv) / ny as f32;
-                        let r = cam.get_ray(u, v);
-                        col += color(r, &world, 0);
-                    }
-                    col /= ns as f32;
-                    col = Vec3::new(col.r().sqrt(), col.g().sqrt(), col.b().sqrt()); // Raise gamma to 2
-                    let ir = (255.99 * col.r()) as u8;
-                    let ig = (255.99 * col.g()) as u8;
-                    let ib = (255.99 * col.b()) as u8;
-                    vec![ir, ig, ib, 255]
-                })
-                .flatten()
-                .collect::<Vec<_>>()
-        })
-        .flatten()
-        .collect::<Vec<_>>()
+pub fn scene_gen_json() -> JsValue {
+    JsValue::from_serde(&random_scene()).unwrap()
 }
 
 #[wasm_bindgen]
@@ -205,12 +156,14 @@ pub struct Scene {
 
 #[wasm_bindgen]
 impl Scene {
-    pub fn new(width: u32, height: u32) -> Scene {
+    pub fn new(width: u32, height: u32, world_obj: JsValue) -> Scene {
         let lookfrom = Vec3::new(16.0, 2.0, 4.0);
         let lookat = Vec3::new(0.0, 0.0, 0.0);
         let vup = Vec3::new(0.0, 1.0, 0.0);
         let dist_to_focus: f32 = (lookfrom - lookat).length();
         let aperture: f32 = 0.2;
+        let world: HitList<Sphere> = world_obj.into_serde().unwrap();
+
         let cam: Camera = Camera::new(
             lookfrom,
             lookat,
@@ -225,7 +178,7 @@ impl Scene {
             width,
             height,
             cam,
-            world: random_scene(),
+            world
         }
     }
 

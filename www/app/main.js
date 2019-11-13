@@ -11,11 +11,20 @@ worker.addEventListener("message", ev => {
         ctx.putImageData(message.imgData, 0, 0);
         result.textContent = message.time;
   } else if (message.allGood === "processing") {
-          ctx.putImageData(message.imgData, 0, 0);
-          result.textContent = message.status;
+        result.textContent = message.status;
+  } else if (message.allGood === false) {
+        result.textContent = "Something went wrong! " + message.error;
   } else {
-    result.textContent = "Something went wrong! " + message.error;
+        let imageData = new ImageData(message, 200);
+        ctx.putImageData(imageData, 0, 0);
   }
 });
 
-submitButton.addEventListener("click", () => worker.postMessage({}));
+submitButton.addEventListener("click", () => {
+    import("../../pkg").then(wasm => {
+        const WIDTH = 200;
+        const HEIGHT = 100;
+        const world = wasm.scene_gen_json();
+        worker.postMessage({init: true, width: WIDTH, height: HEIGHT, world: world});
+    });
+} );

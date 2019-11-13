@@ -1,6 +1,7 @@
 use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
+use serde::{Serialize, Deserialize};
 
 pub trait Hitable {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
@@ -13,6 +14,7 @@ pub struct HitRecord {
     pub material: Material,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct HitList<T: Hitable> {
     pub list: Vec<T>,
 }
