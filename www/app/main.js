@@ -14,8 +14,9 @@ let received = 0;
 let t0;
 
 submitButton.addEventListener("click", async () => {
+  const workerCount = Number(document.getElementById('workerNum').value);
   let workers = [];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < workerCount; i++) {
     workers[i] = new Worker("./worker.js");
   }
 
