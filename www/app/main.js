@@ -14,6 +14,7 @@ let received = 0;
 let t0;
 
 submitButton.addEventListener("click", async () => {
+  submitButton.disabled = true;
   const workerCount = Number(document.getElementById('workerNum').value);
   let workers = [];
   for (let i = 0; i < workerCount; i++) {
