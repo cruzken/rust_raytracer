@@ -12,14 +12,27 @@
     <p>
         Press run to generate an image!
     </p>
-    Number of Workers:
-    <select id="workerNum">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="4">4</option>
-        <option value="8">8</option>
-        <option value="16">16</option>
-    </select>
+    <p>
+        Image Size:
+        <select id="imageSize">
+            <option value="1">small - 200 x 100</option>
+            <option value="2">medium - 400 x 200</option>
+            <option value="3">large - 800 x 400</option>
+            <option value="4">HD - 1280 x 720</option>
+            <option value="5">FHD - 1920 x 1080</option>
+        </select>
+    </p>
+
+    <p>
+        Number of Workers:
+        <select id="workerNum">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="4">4</option>
+            <option value="8">8</option>
+            <option value="16">16</option>
+        </select>
+    </p>
 
     <button type="button" id="submitButton">run</button>
     <p id="result"></p>

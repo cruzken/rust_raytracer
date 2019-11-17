@@ -2,20 +2,28 @@ const submitButton = document.querySelector("#submitButton");
 const result = document.querySelector("#result");
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+const imageSizes = {
+  "1": [200, 100],
+  "2": [400, 200],
+  "3": [800, 400],
+  "4": [1280, 720],
+  "5": [1920, 1080]
+};
 
-const WIDTH = 200;
-const HEIGHT = 100;
-canvas.width = WIDTH;
-canvas.height = HEIGHT;
-
-const IMG = new Uint8ClampedArray(WIDTH * HEIGHT * 4);
-let count = HEIGHT;
-let received = 0;
-let t0;
 
 submitButton.addEventListener("click", async () => {
+  const [WIDTH, HEIGHT] = imageSizes[document.getElementById('imageSize')
+    .value];
+  canvas.width = WIDTH;
+  canvas.height = HEIGHT;
+  const IMG = new Uint8ClampedArray(WIDTH * HEIGHT * 4);
+  let count = HEIGHT;
+  let received = 0;
+  let t0;
+
   submitButton.disabled = true;
-  const workerCount = Number(document.getElementById('workerNum').value);
+  const workerCount = Number(document.getElementById('workerNum')
+    .value);
   let workers = [];
   for (let i = 0; i < workerCount; i++) {
     workers[i] = new Worker("./worker.js");
@@ -56,7 +64,7 @@ submitButton.addEventListener("click", async () => {
             count: count
           });
         }
-        result.textContent = `${received * 100 / HEIGHT}% complete`
+        result.textContent = `${Math.floor(received * 100 / HEIGHT)}% complete`
         if (received === HEIGHT) {
           let imageData = new ImageData(IMG, WIDTH, HEIGHT);
           ctx.putImageData(imageData, 0, 0);
