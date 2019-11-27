@@ -50,19 +50,19 @@ submitButton.addEventListener("click", async () => {
         result.textContent = "Something went wrong! " + message.error;
       } else {
         received++;
-        for (let i = 0; i < message.imgRow.length; i++) {
-          IMG[((HEIGHT - message.row) * WIDTH * 4) + i] = message.imgRow[i];
-        }
-        if (received % 10 === 0) {
-          let imageData = new ImageData(IMG, WIDTH, HEIGHT);
-          ctx.putImageData(imageData, 0, 0);
-        }
         count--;
         if (count >= 0) {
           worker.postMessage({
             job: true,
             count: count
           });
+        }
+        for (let i = 0; i < message.imgRow.length; i++) {
+          IMG[((HEIGHT - message.row) * WIDTH * 4) + i] = message.imgRow[i];
+        }
+        if (received % 10 === 0) {
+          let imageData = new ImageData(IMG, WIDTH, HEIGHT);
+          ctx.putImageData(imageData, 0, 0);
         }
         result.textContent = `${Math.floor(received * 100 / HEIGHT)}% complete`
         if (received === HEIGHT) {
