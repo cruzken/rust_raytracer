@@ -30,6 +30,7 @@ submitButton.addEventListener("click", async () => {
   }
 
   await Promise.all(workers.map(x => loaded(x)));
+  t0 = performance.now();
 
   for (let i = 0; i < workers.length; i++) {
     let worker = workers[i];
@@ -75,7 +76,6 @@ submitButton.addEventListener("click", async () => {
     });
   }
 
-  t0 = performance.now();
 
   import("../../pkg")
     .then(wasm => {
