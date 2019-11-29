@@ -1,4 +1,5 @@
 const submitButton = document.querySelector("#submitButton");
+const saveButton = document.querySelector("#downloadButton");
 const result = document.querySelector("#result");
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -9,6 +10,16 @@ const imageSizes = {
   "4": [1280, 720],
   "5": [1920, 1080]
 };
+
+saveButton.addEventListener('click', () => {
+    let dataURL = canvas.toDataURL('image/png');
+    let tmpLink = document.createElement('a');
+    tmpLink.download = 'image.png'
+    tmpLink.href = dataURL;
+    document.body.appendChild(tmpLink);
+    tmpLink.click();
+    document.body.removeChild(tmpLink);
+});
 
 
 submitButton.addEventListener("click", async () => {
@@ -71,6 +82,7 @@ submitButton.addEventListener("click", async () => {
           ctx.putImageData(imageData, 0, 0);
           let t1 = performance.now();
           result.textContent = `done in ${t1 - t0} ms`;
+            saveButton.style.display = "initial";
         }
       }
     });
