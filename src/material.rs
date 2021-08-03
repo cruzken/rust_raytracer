@@ -2,12 +2,13 @@ use crate::hitable::HitRecord;
 use crate::ray::Ray;
 use crate::vec3::{random_in_unit_sphere, reflect, refract, Vec3};
 use rand::prelude::*;
+use serde::{Serialize, Deserialize};
 
 pub trait MaterialRay {
     fn scatter(&self, r: &Ray, rec: &HitRecord) -> Option<(Vec3, Ray)>;
 }
 
-#[derive(Clone, Copy)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub enum Material {
     Lambertian { mat: Lambertian },
     Metal { mat: Metal },
@@ -24,7 +25,7 @@ impl Material {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct Lambertian {
     albedo: Vec3,
 }
@@ -45,7 +46,7 @@ impl MaterialRay for Lambertian {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct Metal {
     albedo: Vec3,
     fuzz: f32,
@@ -73,7 +74,7 @@ impl MaterialRay for Metal {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct Dielectric {
     ref_idx: f32,
 }
